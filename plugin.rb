@@ -168,7 +168,7 @@ after_initialize do
 
     def event_going
       if self.custom_fields['event_going']
-        self.custom_fields['event_going'].split(',')
+        self.custom_fields['event_going'].split(',').uniq
       else
         []
       end

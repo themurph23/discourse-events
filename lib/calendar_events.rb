@@ -8,6 +8,7 @@ end
 CalendarEvents::Engine.routes.draw do
   post '/rsvp/add' => 'rsvp#add'
   post '/rsvp/remove' => 'rsvp#remove'
+  get '/rsvp/going' => 'rsvp#going'
 end
 
 class CalendarEvents::List

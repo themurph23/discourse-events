@@ -1,7 +1,8 @@
 class CalendarEvents::RsvpController < ApplicationController
   attr_accessor :topic
-  before_action :check_user_and_find_topic, only: [:add, :remove]
-  before_action :check_if_rsvp_enabled
+  before_action :check_user, only: [:add, :remove]
+  before_action :find_topic
+  before_action :check_if_enabled
 
   def add
     prop = "event_#{rsvp_params[:type]}".freeze
@@ -12,7 +13,7 @@ class CalendarEvents::RsvpController < ApplicationController
       raise I18n.t('event_rsvp.errors.going_max')
     end
 
-    list.push(rsvp_params[:username])
+    list.push(rsvp_params[:username]) if list.exclude?(rsvp_params[:username])
 
     @topic.custom_fields[prop] = list.join(',')
 
@@ -43,17 +44,28 @@ class CalendarEvents::RsvpController < ApplicationController
     end
   end
 
+  def going
+    users_going = @topic.event_going.map do |username|
+      User.find_by(username: username) || nil
+    end.compact
+
+    serializer = ActiveModel::ArraySerializer.new(users_going, each_serializer: BasicUserSerializer)
+    render_json_dump(serializer)
+  end
+
   private
 
   def rsvp_params
     params.permit(:topic_id, :type, :username)
   end
 
-  def check_user_and_find_topic
+  def check_user
     unless User.exists?(username: rsvp_params[:username])
       raise Discourse::InvalidAccess.new
     end
+  end
 
+  def find_topic
     if topic = Topic.find_by(id: rsvp_params[:topic_id])
       @topic = topic
     else
@@ -61,7 +73,7 @@ class CalendarEvents::RsvpController < ApplicationController
     end
   end
 
-  def check_if_rsvp_enabled
+  def check_if_enabled
     unless SiteSetting.events_rsvp && @topic.event_rsvp
       raise I18n.t('event_rsvp.errors.not_enabled')
     end

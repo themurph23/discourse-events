@@ -1,6 +1,6 @@
 import { default as computed, observes, on } from 'ember-addons/ember-computed-decorators';
 import { getOwner } from 'discourse-common/lib/get-owner';
-import User from 'discourse/models/user';
+import { ajax } from 'discourse/lib/ajax';
 
 export default Ember.Controller.extend({
   filter: null,
@@ -14,23 +14,17 @@ export default Ember.Controller.extend({
     const type = this.get('type');
     const topic = this.get('model.topic');
 
-    let usernames = topic.get(`event_${type}`);
-
-    if (!usernames || !usernames.length) return;
-
-    let userList = [];
-
-    usernames.forEach((username, index) => {
-      User.findByUsername(username).then((user) => {
-        userList.push(user);
-
-        if (userList.length == usernames.length) {
-          this.setProperties({
-            userList,
-            loadingList: false
-          })
-        }
-      })
+    ajax(`/calendar-events/rsvp/${type}`, {
+      data: {
+        topic_id: topic.id
+      }
+    }).then((userList) => {
+      if (userList.length) {
+        this.setProperties({
+          userList,
+          loadingList: false
+        })
+      }
     });
   },
 

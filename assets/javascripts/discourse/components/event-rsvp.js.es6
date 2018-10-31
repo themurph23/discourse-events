@@ -14,6 +14,7 @@ export default Ember.Component.extend({
 
   @computed('topic.event_going')
   goingTotal(eventGoing) {
+    console.log(eventGoing)
     if (eventGoing) {
       return eventGoing.length;
     } else {
