@@ -503,7 +503,7 @@ after_initialize do
 
       cal.publish
 
-      render plain: cal.to_ical, formats: [:ics] unless performed?
+      render plain: cal.to_ical, content_type: 'text/calendar' # formats: [:ics] unless performed?
     end
   end
 

@@ -11,7 +11,7 @@ export default DropdownSelectBoxComponent.extend({
     const timeZone = moment.tz.guess();
     return [
       {
-        id: `webcal://${baseUrl}.ics?time_zone=${timeZone}`,
+        id: `https://${baseUrl}.ics?time_zone=${timeZone}`,
         name: I18n.t('events_calendar.ical')
       },
       {
