@@ -417,6 +417,7 @@ after_initialize do
 
   ListController.class_eval do
     skip_before_action :ensure_logged_in, only: [:calendar_ics, :agenda_ics]
+    skip_before_action :redirect_to_login_if_required
 
     def calendar_feed
       set_category if params[:category]
